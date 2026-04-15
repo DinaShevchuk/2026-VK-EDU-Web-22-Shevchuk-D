@@ -41,10 +41,20 @@ a:hover {
     background-color: transparent !important;
 }
 
+.navbar-toggler{
+    background-color: #EDD4BF;
+    border: 1px solid #482304;
+    border-radius: 20px;
+}
+
+.navbar-toggler:focus{
+    background-color: #EDD4BF;
+    border: none
+}
 
 .form-control {
     border: 3px solid #EDD4BF;
-    background-color: #EDAE78;
+    background-color: #EDD4BF;
     color: #553921;
 }
 
@@ -53,15 +63,10 @@ a:hover {
     box-shadow: none;
     color: #553921;
     margin: 0;
-    background-color: #EDAE78;
+    background-color: #EDD4BF;
 
 }
 
-.form-control:hover {
-    border: 3px solid #EDD4BF;
-    background-color: #EDAE78;
-    color: #553921;
-}
 
 .btn {
     border: 2px solid #EDD4BF;
@@ -81,11 +86,12 @@ a:hover {
 
 .img-fluid {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 20px;
     height: 100px;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    border-radius: 100%;
     border: 2px solid #482304;
+    align-items: center;
 }
 
 .container-fluid .form-control {
@@ -95,11 +101,21 @@ a:hover {
 .card {
     background-color: transparent !important;
     border: none;
+    height: 400px;
 }
 
 .card .card-title,
 .card-text {
     color: #482304;
+    max-width: 100%;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    display: inline-block;
+}
+
+.card .flex-fill {
+    max-width: calc(100% - 100px);
+    width: 100%;
 }
 
 .card .card-subtitle {
@@ -113,8 +129,27 @@ a:hover {
     padding: 2px;
 }
 
+.card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items:center;
+    width: 100%;
+    gap: 2px;
+    margin-left: 2px;
+}
+
+.card-footer{
+    display: flex;
+    justify-content: space-between;
+}
+
+.card .card-link{
+    margin: 0;
+}
+
 .card .form-control {
     border: 2px solid #482304;
+    width: 100px;
 }
 
 .col {
@@ -141,6 +176,10 @@ a:hover {
 .popular-tags {
     background-color: #EDD4BF;
     border-radius: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 4px;
+    min-width: 150px;
 }
 
 .pagination {
@@ -168,7 +207,7 @@ a:hover {
 .page-link:focus {
     box-shadow: none;
     background-color: #EDD4BF;
-    margin: 4px;
+    margin: 3px;
     color: #482304;
 }
 
@@ -184,12 +223,17 @@ a:hover {
 
 .main-card .card-body {
     border: 3px solid #482304;
-    height: 300px;
     background-color: #EDD4BF;
-    border-radius: 0px;
 }
 
 .card-img-top {
     border: 3px solid #EDD4BF;
     border-radius: 100%;
+}
+
+.flex-column-gap{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
 }
