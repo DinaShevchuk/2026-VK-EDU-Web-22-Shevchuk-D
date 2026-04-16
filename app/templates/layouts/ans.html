@@ -12,18 +12,9 @@
             <div class="flex-fill d-flex flex-column ms-3">
                 <div class="flex-fill d-flex flex-column">
                     <h5 class="card-title">
-                        <a href = "{% url 'one_question' question.id %}"> {{ question.title }} </a>
+                        <a href = "#"> {{ ans.name }} </a>
                     </h5>
-                    <p class="card-text">{{question.text}}</p>
-                </div>
-                <div class="d-flex gap-3 flex-wrap align-items-center mt-3">
-                    <a href="#">Answer("{{question.answer_count}}")</a>
-                    <div class="d-flex flex-wrap align-items-center">
-                        <h6 class="card-subtitle mb-0">Tags:</h6>
-                        {% for tag_word in question.tags %}
-                            <a href="{% url 'tag' tag_word %}" class="card-link">#{{ tag_word }} </a>
-                        {% endfor %}
-                    </div>
+                    <p class="card-text">{{ ans.text }}</p>
                 </div>
             </div>
         </div>
