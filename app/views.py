@@ -28,14 +28,29 @@ ANSWER = [
 ]
 
 USERS = [
+{
+        'username': f'Guest',
+        'id': 0,
+        'email': f'@email.com',
+        'password': f'',
+        'avatar': 'avatar.png',
+    } ,
     {
-        'username': f'Name {i}',
-        'id': i,
-        'email': f'email{i}@email.com',
-        'nickname': f'Nick{i}',
-        'password': f'{i}{i}{i}',
+        'username': f'Name 1',
+        'id': 1,
+        'email': f'email1@email.com',
+        'nickname': f'Nick1',
+        'password': f'111',
         'avatar': 'ava3.jpg',
-    } for i in range(0, 6)
+    } ,
+{
+        'username': f'Name 2',
+        'id': 2,
+        'email': f'email2@email.com',
+        'nickname': f'Nick2',
+        'password': f'222',
+        'avatar': 'ava3.jpg',
+    } ,
 ]
 
 CURRENT_USER = USERS[0]
@@ -71,13 +86,63 @@ def tag(request, tag_word):
 
 
 def login_v(request):
+    error = None
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-
+        print(f"login {username}, {password}")
         for user in USERS:
             if user['username'] == username and user['password'] == password:
                 global CURRENT_USER
                 CURRENT_USER = user
+                print(f"login {username}")
                 return redirect('index')
-    return render(request, 'login.html')
+        error = "Wrong username or password"
+        print("login error")
+    return render(request, 'login.html',{'user': CURRENT_USER, 'error': error})
+
+def logout_v(request):
+    global CURRENT_USER
+    CURRENT_USER = USERS[0]
+    print("logout user")
+    return redirect('index')
+
+def signup_v(request):
+    error = None
+    success = None
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        nickname = request.POST.get('nickname')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+        if not username or not email or not password:
+            error = "Not All"
+        elif password != confirm_password:
+            error = "Passwords don't match"
+        else:
+            user_exists = False
+            for user in USERS:
+                if user['username'] == username:
+                    user_exists = True
+                    error = f"Username {username} already exists"
+                    break
+                if user['email'] == email:
+                    user_exists = True
+                    error = f"Email {email} already exists"
+                    break
+            if not user_exists:
+                new_id = len(USERS)
+                new_user = {
+                    'username': username,
+                    'email': email,
+                    'nickname': nickname if nickname else username,
+                    'password': password,
+                    'avatar': 'ava2.jpg',
+                }
+                USERS.append(new_user)
+                global CURRENT_USER
+                CURRENT_USER = new_user
+                print(f"create new user {username}")
+                return redirect('index')
+    return render(request, 'signup.html',{'user': CURRENT_USER, 'error': error})

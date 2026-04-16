@@ -218,7 +218,6 @@ a:hover {
 
 .row {
     margin: 0px;
-
 }
 
 .main-card .card-body {
@@ -236,4 +235,32 @@ a:hover {
     flex-direction: column;
     gap: 10px;
 
+}
+
+.alert-custom {
+    background-color: rgba(255, 182, 193, 0.5) !important;
+    color:#B22222;
+    font-weight: bold;
+    border: 3px solid #482304;
+}
+
+a.btn{
+    border: 2px solid #EDD4BF;
+    padding: 6px 4px 6px;
+    font-style: normal;
+    background-color: #553921;
+    color: #EDAE78;
+    box-shadow: transparent !important;
+}
+
+a.btn:hover {
+    border: 2px solid #EDD4BF;
+    font-weight: normal;
+}
+
+.text_in_card{
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: normal;
+    min-width: 90px;
 }
