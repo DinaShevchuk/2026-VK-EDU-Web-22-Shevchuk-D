@@ -10,7 +10,16 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Загрузка переменных окружения
+# Попробуем загрузить .env.local, если его нет - .env
+if os.path.exists('.env.local'):
+    load_dotenv('.env.local')
+else:
+    load_dotenv('.env')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +29,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-3i@3=d7$s@7)q@%)j3hcc7md+tr5c*e@o^4&ewbc&lrqq^q%0z'
+# Берём SECRET_KEY из переменных окружения или используем временный для разработки
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-3i@3=d7$s@7)q@%)j3hcc7md+tr5c*e@o^4&ewbc&lrqq^q%0z')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else []
 
 
 # Application definition
@@ -37,6 +47,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Сторонние приложения
+    'debug_toolbar',
+
+    # Ваше приложение
+    'app',  # замените на название вашего приложения, если оно другое
 ]
 
 MIDDLEWARE = [
@@ -47,6 +63,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Debug toolbar (будет работать только при DEBUG=True)
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'askme_shevchuk.urls'
@@ -75,10 +94,15 @@ WSGI_APPLICATION = 'askme_shevchuk.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# Используем PostgreSQL вместо SQLite
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME', 'askme_db'),
+        'USER': os.getenv('DB_USER', 'askme_user'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'askme_password'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
@@ -105,9 +129,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# Локализация на русский язык (требование ДЗ)
+LANGUAGE_CODE = 'ru-ru'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -122,3 +147,21 @@ STATICFILES_DIRS = [
 ]
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Media files (для аватарок)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Debug toolbar (только для локального IP)
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
+
+# Максимальный размер аватарки (5MB)
+MAX_AVATAR_SIZE = 5 * 1024 * 1024
