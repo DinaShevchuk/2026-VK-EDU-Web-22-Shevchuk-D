@@ -1,10 +1,11 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
+
 {% block content %}
 <div class="col-8 d-flex flex-column">
     <div class="d-flex gap-3 align-items-center">
         <h1>Sign Up</h1>
-        <a href="{% url 'index' %}">Main</a>
+        <a href="{% url 'app:index' %}">Main</a>
     </div>
     <div class="card">
         <div class="card-body">
@@ -54,7 +55,7 @@
 
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn">Sign Up!</button>
-                    <a href="{% url 'login' %}" class="btn">Already have an account? Login</a>
+                    <a href="{% url 'app:login' %}" class="btn">Already have an account? Login</a>
                 </div>
             </form>
         </div>
