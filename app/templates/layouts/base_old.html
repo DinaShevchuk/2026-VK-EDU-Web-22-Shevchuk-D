@@ -1,3 +1,4 @@
+<!-- app/templates/layouts/base.html (или templates/base.html) -->
 {% load static %}
 <!doctype html>
 <html lang="ru">
@@ -35,11 +36,12 @@
                     <div>
                         <div>{{ user.username|default:"Guest" }}</div>
                         {% if user.is_authenticated %}
-                            <a href="{% url 'app:settings' %}">Settings</a>
-                            <a href="{% url 'app:logout' %}">Log out</a>
+                            <a href="{% url 'core:profile' %}">Settings</a>
+                            <a href="{% url 'core:logout' %}">Log out</a>
+                            <a href="{% url 'app:ask' %}">Ask Question</a>
                         {% else %}
-                            <a href="{% url 'app:login' %}">Login</a>
-                            <a href="{% url 'app:signup' %}">Sign up</a>
+                            <a href="{% url 'core:login' %}">Login</a>
+                            <a href="{% url 'core:signup' %}">Sign up</a>
                         {% endif %}
                     </div>
                 </div>

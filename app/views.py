@@ -1,3 +1,4 @@
+# app/views.py
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.db.models import Count
@@ -5,7 +6,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.urls import reverse
 from .models import Question, Tag, Answer, Profile
+from core.forms import AskForm, AnswerForm  # Импортируем формы из core
 
 def paginate(request, queryset, per_page=10):
     page_number = request.GET.get('page', 1)
@@ -60,85 +63,42 @@ def question_detail(request, question_id):
     }
     return render(request, 'question.html', context)
 
-# ========== ФУНКЦИИ ДЛЯ АВТОРИЗАЦИИ ==========
-
-def user_login(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            login(request, user)
-            next_url = request.GET.get('next', 'app:index')
-            return redirect(next_url)
-        else:
-            context = {
-                'error': 'Неверное имя пользователя или пароль',
-                'popular_tags': get_popular_tags(),
-            }
-            return render(request, 'login.html', context)
-
-    context = {
-        'popular_tags': get_popular_tags(),
-    }
-    return render(request, 'login.html', context)
-
-def user_logout(request):
-    logout(request)
-    return redirect('app:index')
-
-def signup(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        nickname = request.POST.get('nickname')
-        password = request.POST.get('password')
-        confirm_password = request.POST.get('confirm_password')
-
-        # Проверки
-        if password != confirm_password:
-            context = {'error': 'Пароли не совпадают', 'popular_tags': get_popular_tags()}
-            return render(request, 'signup.html', context)
-
-        if User.objects.filter(username=username).exists():
-            context = {'error': 'Пользователь с таким именем уже существует', 'popular_tags': get_popular_tags()}
-            return render(request, 'signup.html', context)
-
-        if User.objects.filter(email=email).exists():
-            context = {'error': 'Пользователь с таким email уже существует', 'popular_tags': get_popular_tags()}
-            return render(request, 'signup.html', context)
-
-        # Создаём пользователя
-        user = User.objects.create_user(username=username, email=email, password=password)
-
-        # Создаём профиль
-        Profile.objects.get_or_create(user=user)
-
-        # Автоматически логиним
-        login(request, user)
-        return redirect('app:index')
-
-    context = {'popular_tags': get_popular_tags()}
-    return render(request, 'signup.html', context)
+# ========== НОВЫЕ ПРЕДСТАВЛЕНИЯ ДЛЯ ВОПРОСОВ И ОТВЕТОВ ==========
 
 @login_required
-def settings(request):
+def ask_question(request):
+    """Добавление вопроса (только для авторизованных)"""
     if request.method == 'POST':
-        user = request.user
-        user.email = request.POST.get('email', user.email)
-        user.save()
-
-        nickname = request.POST.get('nickname')
-        if nickname:
-            profile = user.profile
-            # profile.nickname = nickname
-            # profile.save()
-
-        messages.success(request, 'Настройки сохранены!')
-        return redirect('app:settings')
+        form = AskForm(request.POST, author=request.user)
+        if form.is_valid():
+            question = form.save()
+            return redirect('app:question_detail', question_id=question.id)
+    else:
+        form = AskForm()
 
     context = {
+        'form': form,
         'popular_tags': get_popular_tags(),
     }
-    return render(request, 'settings.html', context)
+    return render(request, 'ask.html', context)
+
+@login_required
+def add_answer(request, question_id):
+    """Добавление ответа (только для авторизованных)"""
+    question = get_object_or_404(Question, id=question_id)
+
+    if request.method == 'POST':
+        form = AnswerForm(request.POST, author=request.user, question=question)
+        if form.is_valid():
+            answer = form.save()
+            # Редирект на ту же страницу с якорем к новому ответу
+            return redirect(f"{reverse('app:question_detail', args=[question_id])}?page=last#answer-{answer.id}")
+    else:
+        form = AnswerForm()
+
+    context = {
+        'form': form,
+        'question': question,
+        'popular_tags': get_popular_tags(),
+    }
+    return render(request, 'add_answer.html', context)

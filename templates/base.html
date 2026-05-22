@@ -1,0 +1,99 @@
+<!-- templates/base.html -->
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AskMe - {% block title %}Вопросы и ответы{% endblock %}</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{% url 'app:index' %}">
+                    <h2>AskMe</h2>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <form class="d-flex gap-3" role="search" action="{% url 'app:index' %}" method="get">
+                        <input class="form-control" type="search" name="q" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-outline-success" type="submit">Search</button>
+                    </form>
+                </div>
+
+                <div class="d-flex gap-2 align-items-center">
+                    <div>
+                        {% if user.is_authenticated %}
+                            <span>{{ user.username }}</span>
+                            <a href="{% url 'core:profile' %}" class="btn btn-sm btn-outline-primary">Profile</a>
+                            <a href="{% url 'core:logout' %}" class="btn btn-sm btn-outline-danger">Logout</a>
+                            <a href="{% url 'app:ask' %}" class="btn btn-sm btn-success">Ask Question</a>
+                        {% else %}
+                            <a href="{% url 'core:login' %}" class="btn btn-sm btn-primary">Login</a>
+                            <a href="{% url 'core:signup' %}" class="btn btn-sm btn-secondary">Sign up</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mt-3">
+        <div class="row">
+            <div class="col-8">
+                {% block content %}
+                {% endblock %}
+            </div>
+            <div class="col-4">
+                <!-- Popular Tags -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5>Popular Tags</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for tag in popular_tags %}
+                            <a href="{% url 'app:tag' tag_name=tag.name %}" class="badge bg-primary me-1 mb-1">#{{ tag.name }}</a>
+                        {% empty %}
+                            <p class="text-muted">No tags yet</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Best Members -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Best Members</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><a href="#">Me</a></li>
+                            <li><a href="#">Me</a></li>
+                            <li><a href="#">Me</a></li>
+                            <li><a href="#">Me</a></li>
+                            <li><a href="#">Me</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Пагинация -->
+    {% block pagination %}{% endblock %}
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
