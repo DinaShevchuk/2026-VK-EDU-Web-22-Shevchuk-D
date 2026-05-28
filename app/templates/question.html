@@ -2,11 +2,13 @@
 {% load static %}
 
 {% block content %}
-<div class="col-8 d-flex flex-column">
-    <!-- Сам вопрос -->
+<div class="d-flex flex-column w-100">
+    <div class="d-flex gap-3 align-items-center mb-3">
+       <a href="{% url 'app:index' %}">Main</a>
+    </div>
+
     {% include 'layouts/question.html' with question=question %}
 
-    <!-- Ответы -->
     <h3 class="mt-4">Answers ({{ answers_page.paginator.count }})</h3>
     <div class="d-flex flex-column gap-3">
         {% for answer in answers_page %}
@@ -32,9 +34,16 @@
                 </div>
             </div>
         {% empty %}
-            <div class="alert alert-info">Пока нет ни одного ответа к этому вопросу. Будьте первым!</div>
+            <div class="alert alert-info">No answers yet. Be the first to answer!</div>
         {% endfor %}
     </div>
+
+    <!-- Кнопка добавления ответа -->
+    {% if user.is_authenticated %}
+    <div class="mt-4">
+        <a href="{% url 'app:add_answer' question.id %}" class="btn btn-primary">Add Answer</a>
+    </div>
+    {% endif %}
 
     <!-- Пагинация для ответов -->
     {% if answers_page and answers_page.paginator.num_pages > 1 %}

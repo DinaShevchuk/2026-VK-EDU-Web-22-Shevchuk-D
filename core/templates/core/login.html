@@ -2,36 +2,37 @@
 {% load static %}
 
 {% block content %}
-<div class="col-8 d-flex flex-column">
-    <div class="d-flex gap-3 align-items-center">
-        <h1>Login</h1>
-        <a href="{% url 'app:index' %}">Main</a>
-    </div>
-    <div class="card">
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
+<div class="d-flex gap-3 align-items-center">
+    <h1>Login</h1>
+    <a href="{% url 'app:index' %}">Main</a>
+</div>
+<div class="card mt-3">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
 
-                {% if error %}
-                    <div class="alert alert-danger">
-                        {{ error }}
-                    </div>
-                {% endif %}
-
-                <div class="mb-3">
-                    <label class="form-label">Username</label>
-                    <input type="text" name="username" class="form-control" required>
+            {% if error %}
+                <div class="alert alert-danger">
+                    {{ error }}
                 </div>
+            {% endif %}
 
-                <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control" required>
-                </div>
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" class="form-control"
+                       value="{{ request.POST.username|default:'' }}" required>
+            </div>
 
-                <button type="submit" class="btn btn-primary">Login</button>
-                <a href="{% url 'core:signup' %}" class="btn btn-secondary">Create account</a>
-            </form>
-        </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+
+            <input type="hidden" name="next" value="{{ next }}">
+
+            <button type="submit" class="btn btn-primary">Login</button>
+            <a href="{% url 'core:signup' %}" class="btn btn-secondary">Create account</a>
+        </form>
     </div>
 </div>
 {% endblock %}

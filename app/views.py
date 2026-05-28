@@ -84,21 +84,19 @@ def ask_question(request):
 
 @login_required
 def add_answer(request, question_id):
-    """Добавление ответа (только для авторизованных)"""
     question = get_object_or_404(Question, id=question_id)
 
     if request.method == 'POST':
         form = AnswerForm(request.POST, author=request.user, question=question)
         if form.is_valid():
             answer = form.save()
-            # Редирект на ту же страницу с якорем к новому ответу
-            return redirect(f"{reverse('app:question_detail', args=[question_id])}?page=last#answer-{answer.id}")
+            # Перенаправляем с якорем на новый ответ
+            return redirect(f"{reverse('app:question_detail', args=[question_id])}#answer-{answer.id}")
     else:
         form = AnswerForm()
 
-    context = {
+    return render(request, 'add_answer.html', {
         'form': form,
         'question': question,
         'popular_tags': get_popular_tags(),
-    }
-    return render(request, 'add_answer.html', context)
+    })

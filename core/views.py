@@ -1,16 +1,21 @@
-from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.models import User
 from app.models import Profile
+from django.utils.http import url_has_allowed_host_and_scheme
+from .forms import SignupForm
 
 def login_view(request):
     next_url = request.GET.get('next', reverse('app:index'))
 
-    # Проверка на open redirect
-    if next_url.startswith(('http://', 'https://', '//')):
+    # Правильная валидация next_url
+    if not url_has_allowed_host_and_scheme(
+        url=next_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
         next_url = reverse('app:index')
 
     if request.method == 'POST':
@@ -22,36 +27,31 @@ def login_view(request):
             login(request, user)
             return redirect(next_url)
         else:
-            return render(request, 'core/login.html', {'error': 'Invalid username or password'})
+            return render(request, 'core/login.html', {
+                'error': 'Invalid username or password',
+                'next': next_url
+            })
 
-    return render(request, 'core/login.html')
+    return render(request, 'core/login.html', {'next': next_url})
 
 def signup_view(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        confirm_password = request.POST.get('confirm_password')
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            Profile.objects.get_or_create(user=user)
+            login(request, user)
+            return redirect('app:index')
+        else:
+            # Форма невалидна - показываем ошибки
+            return render(request, 'core/signup.html', {
+                'form': form,
+                'error': form.errors
+            })
+    else:
+        form = SignupForm()
 
-        # Проверки
-        if password != confirm_password:
-            return render(request, 'core/signup.html', {'error': 'Passwords do not match'})
-
-        if User.objects.filter(username=username).exists():
-            return render(request, 'core/signup.html', {'error': 'Username already exists'})
-
-        if User.objects.filter(email=email).exists():
-            return render(request, 'core/signup.html', {'error': 'Email already exists'})
-
-        # Создаем пользователя
-        user = User.objects.create_user(username=username, email=email, password=password)
-        Profile.objects.get_or_create(user=user)
-
-        # Автоматически логиним
-        login(request, user)
-        return redirect('app:index')
-
-    return render(request, 'core/signup.html')
+    return render(request, 'core/signup.html', {'form': form})
 
 def logout_view(request):
     next_url = request.GET.get('next', reverse('app:index'))
@@ -65,11 +65,12 @@ def logout_view(request):
 @login_required
 def profile_view(request):
     if request.method == 'POST':
-        user = request.user
-        user.username = request.POST.get('username', user.username)
-        user.email = request.POST.get('email', user.email)
-        user.save()
-        messages.success(request, 'Profile updated successfully!')
-        return redirect('core:profile')
+        form = ProfileForm(request.POST, user=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('core:profile')
+    else:
+        form = ProfileForm(user=request.user)
 
-    return render(request, 'core/profile.html', {'user': request.user})
+    return render(request, 'core/profile.html', {'form': form})

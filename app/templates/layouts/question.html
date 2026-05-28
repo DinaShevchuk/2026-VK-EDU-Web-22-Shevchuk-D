@@ -1,17 +1,18 @@
-<!-- app/templates/layouts/question.html - ЧАСТИЧНЫЙ ШАБЛОН, НЕ РАСШИРЯЕТ base.html -->
 {% load static %}
 
-<div class="card mb-4">
+<div class="card mb-4" style="width: 100%;">
     <div class="card-body">
         <div class="d-flex">
             <div style="display: flex; flex-direction: column; align-items: center; flex-shrink: 0;">
                 <div class="mb-2">
-                    <img src="{% static 'img/ava1.webp' %}" alt="Ava" class="img-fluid" style="width: 50px;">
+                    <img src="{% static 'img/ava1.webp' %}" alt="Ava" class="img-fluid" style="width: 80px; height: 80px;">
                 </div>
                 <div class="rating-display">{{ question.rating }}</div>
             </div>
             <div class="flex-fill d-flex flex-column ms-3">
-                <h2 class="card-title">{{ question.title }}</h2>
+                <h2 class="card-title">
+                    <a href="{% url 'app:question_detail' question.id %}">{{ question.title }}</a>
+                </h2>
                 <p class="card-text">{{ question.text }}</p>
                 <div class="d-flex gap-3 flex-wrap align-items-center mt-3">
                     <div class="d-flex flex-wrap align-items-center">
@@ -20,11 +21,6 @@
                             <a href="{% url 'app:tag' tag_name=tag.name %}" class="card-link me-2">#{{ tag.name }}</a>
                         {% endfor %}
                     </div>
-                    {% if answers_page.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ answers_page.next_page_number }}">»</a>
-                        </li>
-                    {% endif %}
                 </div>
             </div>
         </div>

@@ -2,46 +2,76 @@
 {% load static %}
 
 {% block content %}
-<div class="col-8 d-flex flex-column">
-    <div class="d-flex gap-3 align-items-center">
-        <h1>Sign Up</h1>
-        <a href="{% url 'app:index' %}">Main</a>
-    </div>
-    <div class="card">
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
+<div class="d-flex gap-3 align-items-center">
+    <h1>Sign Up</h1>
+    <a href="{% url 'app:index' %}">Main</a>
+</div>
+<div class="card mt-3">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
 
-                {% if error %}
-                    <div class="alert alert-danger">
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
                         {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" class="form-control"
+                       value="{{ form.username.value|default:'' }}" required>
+                {% if form.username.errors %}
+                    <div class="text-danger">
+                        {% for error in form.username.errors %}
+                            {{ error }}
+                        {% endfor %}
                     </div>
                 {% endif %}
+            </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Username</label>
-                    <input type="text" name="username" class="form-control" required>
-                </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control"
+                       value="{{ form.email.value|default:'' }}" required>
+                {% if form.email.errors %}
+                    <div class="text-danger">
+                        {% for error in form.email.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input type="email" name="email" class="form-control" required>
-                </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" name="password1" class="form-control" required>
+                {% if form.password1.errors %}
+                    <div class="text-danger">
+                        {% for error in form.password1.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control" required>
-                </div>
+            <div class="mb-3">
+                <label class="form-label">Confirm Password</label>
+                <input type="password" name="password2" class="form-control" required>
+                {% if form.password2.errors %}
+                    <div class="text-danger">
+                        {% for error in form.password2.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Confirm Password</label>
-                    <input type="password" name="confirm_password" class="form-control" required>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Sign Up!</button>
-                <a href="{% url 'core:login' %}" class="btn btn-secondary">Already have an account? Login</a>
-            </form>
-        </div>
+            <button type="submit" class="btn btn-primary">Sign Up!</button>
+            <a href="{% url 'core:login' %}" class="btn btn-secondary">Already have an account? Login</a>
+        </form>
     </div>
 </div>
 {% endblock %}
