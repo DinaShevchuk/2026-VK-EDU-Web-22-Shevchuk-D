@@ -2,12 +2,12 @@
 {% load static %}
 
 {% block content %}
-<div class="col-8 d-flex flex-column">
+<div class="d-flex flex-column w-100">
     <div class="d-flex gap-3 align-items-center">
         <h1>Profile Settings</h1>
         <a href="{% url 'app:index' %}">Main</a>
     </div>
-    <div class="card">
+    <div class="card mt-3">
         <div class="card-body">
             {% if messages %}
                 {% for message in messages %}
@@ -15,17 +15,53 @@
                 {% endfor %}
             {% endif %}
 
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="mb-3">
+                    <label class="form-label">Current Avatar</label><br>
+                    {% if user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" alt="Avatar"
+                             style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'img/avatar.png' %}" alt="Default Avatar"
+                             style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">New Avatar</label>
+                    {{ form.avatar }}
+                    {% if form.avatar.errors %}
+                        <div class="text-danger">{{ form.avatar.errors }}</div>
+                    {% endif %}
+                    <small class="form-text text-muted">Allowed: JPG, JPEG, PNG, GIF. Max size: 5MB</small>
+                </div>
 
                 <div class="mb-3">
                     <label class="form-label">Username</label>
-                    <input type="text" name="username" class="form-control" value="{{ user.username }}" required>
+                    <input type="text" name="username" class="form-control"
+                           value="{{ form.username.value|default:user.username }}" required>
+                    {% if form.username.errors %}
+                        <div class="text-danger">{{ form.username.errors }}</div>
+                    {% endif %}
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Email</label>
-                    <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+                    <input type="email" name="email" class="form-control"
+                           value="{{ form.email.value|default:user.email }}" required>
+                    {% if form.email.errors %}
+                        <div class="text-danger">{{ form.email.errors }}</div>
+                    {% endif %}
                 </div>
 
                 <button type="submit" class="btn btn-primary">Save changes</button>

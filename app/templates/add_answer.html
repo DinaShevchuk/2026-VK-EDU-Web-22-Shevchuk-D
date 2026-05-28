@@ -1,12 +1,15 @@
-<!-- app/templates/add_answer.html -->
 {% extends 'base.html' %}
 {% load static %}
 
 {% block content %}
-<div class="col-8 d-flex flex-column">
+<div class="d-flex flex-column w-100">
+    <div class="d-flex gap-3 align-items-center mb-3">
+        <a href="{% url 'app:question_detail' question.id %}">← Back to Question</a>
+    </div>
+
     <h3>Add your answer to: {{ question.title }}</h3>
 
-    <div class="card mt-3">
+    <div class="card mt-3 w-100">
         <div class="card-body">
             <form method="post">
                 {% csrf_token %}
@@ -19,19 +22,21 @@
                     </div>
                 {% endif %}
 
-                {% for field in form %}
-                    <div class="mb-3">
-                        <label class="form-label">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.errors %}
-                            <div class="alert alert-danger mt-1">
-                                {% for error in field.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
+                <div class="mb-3 w-100">
+                    <label class="form-label">Your Answer</label>
+                    <textarea name="text"
+                              class="form-control w-100"
+                              placeholder="Your answer..."
+                              rows="5"
+                              style="width: 100% !important; text-align: left;">{{ form.text.value|default:'' }}</textarea>
+                    {% if form.text.errors %}
+                        <div class="alert alert-danger mt-1">
+                            {% for error in form.text.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
 
                 <button type="submit" class="btn btn-primary">Submit Answer</button>
                 <a href="{% url 'app:question_detail' question.id %}" class="btn btn-secondary">Cancel</a>

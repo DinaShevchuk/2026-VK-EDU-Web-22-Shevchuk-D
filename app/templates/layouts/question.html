@@ -1,24 +1,49 @@
 {% load static %}
 
-<div class="card mb-4" style="width: 100%;">
+<div class="card w-100 mb-4">
     <div class="card-body">
         <div class="d-flex">
             <div style="display: flex; flex-direction: column; align-items: center; flex-shrink: 0;">
                 <div class="mb-2">
-                    <img src="{% static 'img/ava1.webp' %}" alt="Ava" class="img-fluid" style="width: 80px; height: 80px;">
+                    <img src="{% static 'img/ava1.webp' %}" alt="Ava" class="img-fluid" style="width: 60px; height: 60px;">
                 </div>
-                <div class="rating-display">{{ question.rating }}</div>
+                <div class="d-flex flex-column align-items-center gap-0">
+                    {% if user.is_authenticated %}
+                        <button class="btn btn-sm like-btn p-0 like-question-btn"
+                                style="font-size: 0.7rem; width: 24px; height: 24px; line-height: 1;"
+                                data-question-id="{{ question.id }}" data-value="1">▲</button>
+                    {% else %}
+                        <button class="btn btn-sm like-btn p-0"
+                                style="font-size: 0.7rem; width: 24px; height: 24px; line-height: 1; opacity: 0.5; cursor: not-allowed;"
+                                disabled title="Войдите, чтобы лайкнуть">▲</button>
+                    {% endif %}
+
+                    <span id="question-rating-{{ question.id }}" class="fw-bold my-1" style="font-size: 0.9rem;">{{ question.rating }}</span>
+
+                    {% if user.is_authenticated %}
+                        <button class="btn btn-sm like-btn p-0 like-question-btn"
+                                style="font-size: 0.7rem; width: 24px; height: 24px; line-height: 1;"
+                                data-question-id="{{ question.id }}" data-value="-1">▼</button>
+                    {% else %}
+                        <button class="btn btn-sm like-btn p-0"
+                                style="font-size: 0.7rem; width: 24px; height: 24px; line-height: 1; opacity: 0.5; cursor: not-allowed;"
+                                disabled title="Войдите, чтобы дизлайкнуть">▼</button>
+                    {% endif %}
+                </div>
             </div>
-            <div class="flex-fill d-flex flex-column ms-3">
+            <div class="flex-fill ms-3">
                 <h2 class="card-title">
                     <a href="{% url 'app:question_detail' question.id %}">{{ question.title }}</a>
                 </h2>
-                <p class="card-text">{{ question.text }}</p>
+                <p class="card-text">{{ question.text|truncatewords:50 }}</p>
                 <div class="d-flex gap-3 flex-wrap align-items-center mt-3">
+                    <a href="{% url 'app:question_detail' question.id %}" class="text-muted" style="font-size: 0.85rem;">
+                        Answers ({{ question.answers.count }})
+                    </a>
                     <div class="d-flex flex-wrap align-items-center">
                         <h6 class="card-subtitle mb-0 me-2">Tags:</h6>
                         {% for tag in question.tags.all %}
-                            <a href="{% url 'app:tag' tag_name=tag.name %}" class="card-link me-2">#{{ tag.name }}</a>
+                            <a href="{% url 'app:tag' tag_name=tag.name|slugify %}" class="card-link me-2">{{ tag.name }}</a>
                         {% endfor %}
                     </div>
                 </div>
@@ -26,3 +51,55 @@
         </div>
     </div>
 </div>
+
+<script>
+// CSRF токен
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+
+// Находим все кнопки лайков вопросов
+document.querySelectorAll('.like-question-btn').forEach(btn => {
+    btn.onclick = function(e) {
+        e.preventDefault();
+        const questionId = this.getAttribute('data-question-id');
+        const value = this.getAttribute('data-value');
+        const ratingElement = document.getElementById('question-rating-' + questionId);
+
+        fetch('/question/' + questionId + '/like/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrftoken,
+            },
+            body: 'value=' + value
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            if (data.success) {
+                ratingElement.textContent = data.rating;
+            } else if (data.error) {
+                alert(data.error);
+            }
+        })
+        .catch(function(error) {
+            console.error('Error:', error);
+        });
+    };
+});
+</script>

@@ -1,11 +1,12 @@
 from django.db import models
-
+from django.core.validators import FileExtensionValidator
+import os
+import uuid
 # Create your models here.
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 
-# Менеджер для вопросов
 class QuestionManager(models.Manager):
     """Менеджер для типовых выборок вопросов"""
 
@@ -248,3 +249,28 @@ class AnswerLike(models.Model):
 
     def __str__(self):
         return f"{self.user.username}: {self.get_value_display()} ответа {self.answer.id}"
+
+def avatar_upload_path(instance, filename):
+    """Генерирует уникальный путь для аватарки"""
+    ext = filename.split('.')[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    return f'avatars/{filename}'
+
+class Profile(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="Пользователь",
+        related_name="profile"
+    )
+    avatar = models.ImageField(
+        upload_to=avatar_upload_path,
+        blank=True,
+        null=True,
+        verbose_name="Аватар",
+        validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'gif'])]
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Дата регистрации"
+    )

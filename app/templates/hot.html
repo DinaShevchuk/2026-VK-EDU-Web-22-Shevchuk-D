@@ -6,16 +6,19 @@
         <div class="d-flex gap-3 align-items-center">
             <h1>Hot Questions</h1>
             <a href="{% url 'app:index' %}">New Questions</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'app:ask' %}" class="btn btn-primary ms-auto">Ask Question</a>
+            {% endif %}
         </div>
-        <div class="d-flex flex-column gap-3">
+
+        <div class="d-flex flex-column gap-3 mt-3">
             {% for question in page %}
                 {% include 'layouts/question.html' with question=question %}
             {% empty %}
-                <div class="alert alert-info">Пока нет ни одного вопроса. Будьте первым!</div>
+                <div class="alert alert-info">No questions yet. Be the first to ask!</div>
             {% endfor %}
         </div>
 
-        <!-- Пагинация -->
         {% if page and page.paginator.num_pages > 1 %}
         <nav aria-label="Page navigation example" class="mt-3">
             <ul class="pagination">

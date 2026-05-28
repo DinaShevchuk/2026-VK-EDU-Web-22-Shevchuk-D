@@ -1,14 +1,14 @@
-<!-- app/templates/ask.html -->
 {% extends 'base.html' %}
 {% load static %}
 
 {% block content %}
-<div class="col-8 d-flex flex-column">
-    <div class="d-flex gap-3 align-items-center">
+<div class="d-flex flex-column w-100">
+    <div class="d-flex gap-3 align-items-center mb-3">
         <h1>Ask a Question</h1>
         <a href="{% url 'app:index' %}">Main</a>
     </div>
-    <div class="card">
+
+    <div class="card w-100">
         <div class="card-body">
             <form method="post">
                 {% csrf_token %}
@@ -21,22 +21,54 @@
                     </div>
                 {% endif %}
 
-                {% for field in form %}
-                    <div class="mb-3">
-                        <label class="form-label">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.help_text %}
-                            <small class="form-text text-muted">{{ field.help_text }}</small>
-                        {% endif %}
-                        {% if field.errors %}
-                            <div class="alert alert-danger mt-1">
-                                {% for error in field.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
+                <div class="mb-3 w-100">
+                    <label class="form-label">Title</label>
+                    <input type="text" name="title"
+                           class="form-control w-100"
+                           placeholder="Question title"
+                           value="{{ form.title.value|default:'' }}"
+                           style="width: 100% !important; text-align: left;">
+                    {% if form.title.errors %}
+                        <div class="alert alert-danger mt-1">
+                            {% for error in form.title.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3 w-100">
+                    <label class="form-label">Text</label>
+                    <textarea name="text"
+                              class="form-control w-100"
+                              placeholder="Question text"
+                              rows="5"
+                              style="width: 100% !important; text-align: left;">{{ form.text.value|default:'' }}</textarea>
+                    {% if form.text.errors %}
+                        <div class="alert alert-danger mt-1">
+                            {% for error in form.text.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3 w-100">
+                    <label class="form-label">Tags</label>
+                    <input type="text" name="tags"
+                           class="form-control w-100"
+                           placeholder="Tags (comma-separated)"
+                           value="{{ form.tags.value|default:'' }}"
+                           style="width: 100% !important; text-align: left;">
+                    <small class="form-text text-muted">Enter tags separated by commas</small>
+                    {% if form.tags.errors %}
+                        <div class="alert alert-danger mt-1">
+                            {% for error in form.tags.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
 
                 <button type="submit" class="btn btn-primary">Ask Question</button>
             </form>

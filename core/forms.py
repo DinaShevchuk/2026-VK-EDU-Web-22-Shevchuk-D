@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator  # ← Добавьте эту строку
 from app.models import Profile, Question, Answer
 from django.urls import reverse
 
@@ -57,7 +58,6 @@ class SignupForm(UserCreationForm):
 
 
 class ProfileForm(forms.ModelForm):
-    """Форма редактирования профиля"""
     username = forms.CharField(
         max_length=150,
         widget=forms.TextInput(attrs={'class': 'form-control'})
@@ -65,11 +65,15 @@ class ProfileForm(forms.ModelForm):
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={'class': 'form-control'})
     )
+    avatar = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control'}),
+        validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'gif'])]
+    )
 
     class Meta:
         model = Profile
-        fields = []  # Пока не добавляем avatar
-        # fields = ('avatar',)  # Раскомментировать, когда добавите загрузку аватара
+        fields = ['avatar']
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
@@ -78,6 +82,14 @@ class ProfileForm(forms.ModelForm):
             self.fields['username'].initial = self.user.username
             self.fields['email'].initial = self.user.email
 
+    def clean_avatar(self):
+        avatar = self.cleaned_data.get('avatar')
+        if avatar:
+            # Проверка размера файла (макс 5MB)
+            if avatar.size > 5 * 1024 * 1024:
+                raise ValidationError('Размер файла не должен превышать 5MB')
+        return avatar
+
     def clean_username(self):
         username = self.cleaned_data['username']
         if User.objects.exclude(pk=self.user.pk).filter(username=username).exists():
@@ -85,14 +97,24 @@ class ProfileForm(forms.ModelForm):
         return username
 
     def save(self, commit=True):
+        # Обновляем данные пользователя
         if self.user:
             self.user.username = self.cleaned_data['username']
             self.user.email = self.cleaned_data['email']
             if commit:
                 self.user.save()
-        return super().save(commit)
 
+        # Получаем существующий профиль или создаем новый
+        profile = Profile.objects.get_or_create(user=self.user)[0]
 
+        # Обновляем аватар, если он был загружен
+        if self.cleaned_data.get('avatar'):
+            profile.avatar = self.cleaned_data['avatar']
+
+        if commit:
+            profile.save()
+
+        return profile
 class AskForm(forms.ModelForm):
     """Форма добавления вопроса"""
     tags = forms.CharField(

@@ -476,3 +476,45 @@ a.btn:hover {
 html {
     scroll-behavior: smooth;
 }
+
+.page-item.active .page-link {
+    background-color: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: white !important;
+}
+
+.page-item.active .page-link:hover {
+    background-color: var(--accent-dark) !important;
+    border-color: var(--accent-dark) !important;
+    color: white !important;
+}
+
+/* Широкие поля ввода */
+.col-8 .form-control,
+.col-md-8 .form-control {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.col-8 input[type="text"],
+.col-8 input[type="email"],
+.col-8 input[type="password"],
+.col-8 textarea {
+    width: 100% !important;
+}
+
+.form-control {
+    width: 100% !important;
+    max-width: 100% !important;
+    text-align: left !important;
+}
+
+textarea.form-control {
+    text-align: left !important;
+    width: 100% !important;
+}
+
+input.form-control,
+textarea.form-control {
+    text-align: left !important;
+}
